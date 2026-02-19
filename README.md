@@ -11,7 +11,7 @@ A production-ready AI-powered medical transcription analysis system built with F
 | Feature | Details |
 |---------|---------|
 | 📄 **File Upload** | TXT and PDF support (up to 10MB) |
-| 🧠 **AI Analysis** | GPT-4o-mini via OpenAI API (or compatible) |
+| 🧠 **AI Analysis** | Google Gemini 2.5 Flash via Gemini API |
 | 🔬 **Entity Extraction** | Symptoms, medications, procedures, lab values, body parts |
 | 🏥 **Specialty Classification** | AI + rule-based fallback |
 | ⚠️ **Risk Detection** | High-priority clinical keyword flagging |
@@ -228,6 +228,13 @@ python scripts/preprocess_kaggle.py
 - ✅ Non-root Docker user
 - ✅ Input sanitization (HTML escaping in frontend)
 - ✅ Structured error responses (no stack traces in production)
+
+---
+
+## Author
+
+**Muhammad Talha**  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/muhammad-talha-6278463a1)
 
 ---
 
