@@ -1,0 +1,104 @@
+version: "3.9"
+
+# ============================================================
+# Docker Compose — AI Medical Report Analyzer
+# Services: app, postgres, redis (optional)
+# ============================================================
+
+services:
+  # ── PostgreSQL Database ───────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: medanalyze_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepassword}
+      POSTGRES_DB: medical_analyzer
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d medical_analyzer" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medanalyze_net
+
+  # ── Redis Cache (Optional) ────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: medanalyze_cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medanalyze_net
+
+  # ── FastAPI Application ───────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: medanalyze_app
+    restart: unless-stopped
+    environment:
+      # App
+      APP_ENV: production
+      DEBUG: "false"
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-min-32-chars}
+      # AI
+      MEDICAL_AI_API_KEY: ${MEDICAL_AI_API_KEY}
+      AI_MODEL: ${AI_MODEL:-gpt-4o-mini}
+      AI_TEMPERATURE: "0.2"
+      # Database
+      DATABASE_URL: postgresql+asyncpg://postgres:${DB_PASSWORD:-securepassword}@postgres:5432/medical_analyzer
+      DATABASE_SYNC_URL: postgresql://postgres:${DB_PASSWORD:-securepassword}@postgres:5432/medical_analyzer
+      # Redis
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/0
+      # Rate Limiting
+      RATE_LIMIT_REQUESTS: "5"
+      RATE_LIMIT_WINDOW: "60"
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8000}
+      # Logging
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - medanalyze_net
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  medanalyze_net:
+    driver: bridge
