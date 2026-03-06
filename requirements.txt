@@ -1,12 +1,6 @@
 fastapi
 uvicorn
-python-multipart
 sqlalchemy
 aiosqlite
 pydantic
-pydantic-settings
-google-genai
-httpx
-pypdf
-python-dotenv
-chardet
+python-multipart

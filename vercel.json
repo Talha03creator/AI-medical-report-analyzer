@@ -1,37 +1,17 @@
 {
   "builds": [
     {
-      "src": "app/main.py",
+      "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.11"
       }
-    },
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
     }
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/app/main.py"
-    },
-    {
-      "source": "/docs",
-      "destination": "/app/main.py"
-    },
-    {
-      "source": "/openapi.json",
-      "destination": "/app/main.py"
-    },
-    {
-      "source": "/(.*\\.(css|js|html|ico|png|jpg|svg))",
-      "destination": "/frontend/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "destination": "/api/index.py"
     }
   ]
 }
