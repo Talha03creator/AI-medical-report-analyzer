@@ -3,4 +3,10 @@ uvicorn
 sqlalchemy
 aiosqlite
 pydantic
+pydantic-settings
 python-multipart
+google-genai
+httpx
+pypdf
+python-dotenv
+chardet
